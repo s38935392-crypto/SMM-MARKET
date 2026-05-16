@@ -341,46 +341,46 @@ export default function App() {
     setIsConfirming(true);
   };
 
-  // ==================== BOT GA YUBORISH ====================
-  const finalSubmitOrder = () => {
-    if (!cart.length) return;
-    const missing = cart.find(i => !itemInputs[i.cartId]?.trim());
-    if (missing) { alert(`❌ "${missing.product.title}" uchun kerakli ma'lumotni kiriting`); return; }
+ // ==================== BOT GA YUBORISH ====================
+const finalSubmitOrder = () => {
+  if (!cart.length) return;
+  const missing = cart.find(i => !itemInputs[i.cartId]?.trim());
+  if (missing) { alert(`❌ "${missing.product.title}" uchun kerakli ma'lumotni kiriting`); return; }
 
-    setIsSubmitting(true);
-    const tg = (window as any).Telegram?.WebApp;
-    const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
-    const totalPrice = cart.reduce((s, i) => s + (parseInt(i.variant.price.replace(/[^0-9]/g, '')) || 0), 0);
+  setIsSubmitting(true);
+  const tg = (window as any).Telegram?.WebApp;
+  const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
+  const totalPrice = cart.reduce((s, i) => s + (parseInt(i.variant.price.replace(/[^0-9]/g, '')) || 0), 0);
 
-    // Bot ga yuboriladigan to'liq ma'lumot
-    const orderData = {
-      orderId,
-      items: cart.map(i => ({
-        product: i.product.title,
-        category: i.product.category,
-        variant: i.variant.name,
-        price: i.variant.price,
-        userInput: itemInputs[i.cartId]?.trim(),
-      })),
-      totalPrice,
-      totalItems: cart.length,
-      contact: contactInfo.trim() || null,
-      timestamp: new Date().toISOString(),
-      user: tg?.initDataUnsafe?.user || { first_name: 'Web User', id: 0 },
-    };
-
-    setTimeout(() => {
-      if (tg) {
-        tg.sendData(JSON.stringify(orderData));
-      } else {
-        console.log('📦 TEST buyurtma:', orderData);
-      }
-      setIsSubmitting(false);
-      setSuccessOrderId(orderId);
-      setIsCartOpen(false);
-      setIsConfirming(false);
-    }, 800);
+  const orderData = {
+    orderId,
+    items: cart.map(i => ({
+      product: i.product.title,
+      category: i.product.category,
+      variant: i.variant.name,
+      price: i.variant.price,
+      userInput: itemInputs[i.cartId]?.trim(),
+    })),
+    totalPrice,
+    totalItems: cart.length,
+    contact: contactInfo.trim() || null,
+    timestamp: new Date().toISOString(),
   };
+
+  setTimeout(() => {
+    if (tg && tg.sendData) {
+      tg.sendData(JSON.stringify(orderData));
+    } else {
+      alert("❌ Bot orqali oching! Telegram WebApp ishlamayapti.");
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(false);
+    setSuccessOrderId(orderId);
+    setIsCartOpen(false);
+    setIsConfirming(false);
+  }, 800);
+};
 
   const handleSuccessClose = () => {
     setSuccessOrderId(null);
