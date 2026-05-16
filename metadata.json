@@ -1,0 +1,6 @@
+{
+  "name": "SMM MARKET",
+  "description": "Digital goods and game currency marketplace",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
